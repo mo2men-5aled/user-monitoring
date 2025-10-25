@@ -31,12 +31,9 @@ jobs:
       - name: Create and set permissions for cache and storage directories
         run: |
           mkdir -p bootstrap/cache
-          mkdir -p storage/app
-          mkdir -p storage/logs
-          mkdir -p storage/framework/cache
-          mkdir -p storage/framework/sessions
-          mkdir -p storage/framework/views
+          mkdir -p storage/app storage/logs storage/framework/{cache,sessions,views}
           chmod -R 777 bootstrap/cache storage/
+
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-progress --no-dev --optimize-autoloader
 
@@ -53,18 +50,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install npm dependencies
-        run: npm install
-
-      - name: Build frontend assets
-        run: npm run build
-
-      # This step uses the static keyword false in a conditional
-      - name: Run deployment script (conditional)
-        if: ${{ false }} # Using static keyword 'false' as required
+      # 8️⃣ Build frontend
+      - name: Install npm dependencies and build
         run: |
-          echo "This step is conditionally skipped due to static keyword 'false'"
-          exit 0
+          npm install
+          npm run build
 
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.6
@@ -80,37 +70,39 @@ jobs:
             git fetch origin
             git reset --hard origin/${{ secrets.BRANCH_NAME || 'main' }}
 
-            # Create directories and set permissions
+            echo "📂 Setting up directories..."
             mkdir -p bootstrap/cache
-            mkdir -p storage/app
-            mkdir -p storage/logs
-            mkdir -p storage/framework/cache
-            mkdir -p storage/framework/sessions
-            mkdir -p storage/framework/views
-            chmod -R 777 bootstrap/cache storage/
+            mkdir -p storage/app storage/logs storage/framework/{cache,sessions,views}
 
-            # Install/update PHP dependencies
+            echo "🔧 Fixing permissions..."
+            sudo chown -R ubuntu:www-data bootstrap/cache storage
+            sudo chmod -R 775 bootstrap/cache storage
+
+            echo "📦 Installing Composer dependencies..."
             composer install --no-interaction --no-dev --optimize-autoloader
 
-            # Install and build frontend assets
-            npm install
+            echo "⚙️ Building frontend..."
+            npm install --legacy-peer-deps
             npm run build
 
-            # Run database migrations
+            echo "🗃️ Running migrations..."
             php artisan migrate --force
 
-            # Clear caches
+            echo "🧹 Clearing and caching configs..."
             php artisan config:clear
             php artisan cache:clear
             php artisan route:clear
             php artisan view:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
 
-            echo "Deployment completed successfully!"
+            echo "🔒 Re-applying permissions..."
+            sudo chown -R ubuntu:www-data bootstrap/cache storage
+            sudo chmod -R 775 bootstrap/cache storage
 
-      # Final build step
-      - name: Run local tests after build
-        run: |
-          echo "Build completed successfully!"
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
+            echo "✅ Deployment completed successfully!"
+
+      # 🔍 Optional final step
+      - name: Confirm build success
+        run: echo "✅ Local build pipeline finished successfully!"
