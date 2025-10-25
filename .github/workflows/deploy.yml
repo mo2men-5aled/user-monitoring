@@ -28,6 +28,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
     
+    - name: Create and set permissions for cache and storage directories
+      run: |
+        mkdir -p bootstrap/cache
+        mkdir -p storage/app
+        mkdir -p storage/logs
+        mkdir -p storage/framework/cache
+        mkdir -p storage/framework/sessions
+        mkdir -p storage/framework/views
+        chmod -R 777 bootstrap/cache storage/
     - name: Install Composer dependencies
       run: composer install --no-interaction --no-progress --no-dev --optimize-autoloader
     
@@ -70,6 +79,15 @@ jobs:
           # Git pull latest changes
           git fetch origin
           git reset --hard origin/${{ secrets.BRANCH_NAME || 'main' }}
+          
+          # Create directories and set permissions
+          mkdir -p bootstrap/cache
+          mkdir -p storage/app
+          mkdir -p storage/logs
+          mkdir -p storage/framework/cache
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          chmod -R 777 bootstrap/cache storage/
           
           # Install/update PHP dependencies
           composer install --no-interaction --no-dev --optimize-autoloader
