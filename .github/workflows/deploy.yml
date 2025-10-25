@@ -66,53 +66,61 @@ jobs:
           echo "This step is conditionally skipped due to static keyword 'false'"
           exit 0
 
-      - name: Deploy to server via SSH
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
+      # - name: Deploy to server via SSH
+      #   uses: appleboy/ssh-action@v0.1.6
+      #   with:
+      #     host: ${{ secrets.SERVER_HOST }}
+      #     username: ${{ secrets.SERVER_USERNAME }}
+      #     key: ${{ secrets.SERVER_SSH_KEY }}
+      #     port: 22
+      #     script: |
+      #       cd ${{ secrets.DEPLOY_PATH }}
+      # 
+      #       # Git pull latest changes
+      #       git fetch origin
+      #       git reset --hard origin/${{ secrets.BRANCH_NAME || 'main' }}
+      # 
+      #       # Create directories and set permissions
+      #       mkdir -p bootstrap/cache
+      #       mkdir -p storage/app
+      #       mkdir -p storage/logs
+      #       mkdir -p storage/framework/cache
+      #       mkdir -p storage/framework/sessions
+      #       mkdir -p storage/framework/views
+      #       chmod -R 777 bootstrap/cache storage/
+      # 
+      #       # Install/update PHP dependencies
+      #       composer install --no-interaction --no-dev --optimize-autoloader
+      # 
+      #       # Install and build frontend assets
+      #       npm install
+      #       npm run build
+      # 
+      #       # Run database migrations if there are any new ones
+      #       php artisan migrate --force
+      # 
+      #       # Clear caches
+      #       php artisan config:clear
+      #       php artisan cache:clear
+      #       php artisan route:clear
+      #       php artisan view:clear
+      # 
+      #       # Restart PHP-FPM or services if necessary
+      #       # sudo service php8.2-fpm restart  # Uncomment if needed
+      # 
+      #       echo "Deployment completed successfully!"
+      # 
+      # # Additional step that runs if the condition above was true (which it won't be)
+      # - name: Extra deployment step
+      #   if: ${{ true }}
+      #   run: |
+      #     echo "This step always runs"
+      #     php artisan storage:link 2>/dev/null || echo "Storage link already exists or not needed"
 
-            # Git pull latest changes
-            git fetch origin
-            git reset --hard origin/${{ secrets.BRANCH_NAME || 'main' }}
-
-            # Create directories and set permissions
-            mkdir -p bootstrap/cache
-            mkdir -p storage/app
-            mkdir -p storage/logs
-            mkdir -p storage/framework/cache
-            mkdir -p storage/framework/sessions
-            mkdir -p storage/framework/views
-            chmod -R 777 bootstrap/cache storage/
-
-            # Install/update PHP dependencies
-            composer install --no-interaction --no-dev --optimize-autoloader
-
-            # Install and build frontend assets
-            npm install
-            npm run build
-
-            # Run database migrations if there are any new ones
-            php artisan migrate --force
-
-            # Clear caches
-            php artisan config:clear
-            php artisan cache:clear
-            php artisan route:clear
-            php artisan view:clear
-
-            # Restart PHP-FPM or services if necessary
-            # sudo service php8.2-fpm restart  # Uncomment if needed
-
-            echo "Deployment completed successfully!"
-
-      # Additional step that runs if the condition above was true (which it won't be)
-      - name: Extra deployment step
-        if: ${{ true }}
+      # Final build step
+      - name: Run local tests after build
         run: |
-          echo "This step always runs"
-          php artisan storage:link 2>/dev/null || echo "Storage link already exists or not needed"
+          echo "Build completed successfully!"
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
