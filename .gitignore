@@ -1,0 +1,76 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# Laravel
+bootstrap/cache/
+bootstrap/cache/*.php
+bootstrap/views/
+server.php
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+composer.lock
+package-lock.json
+yarn.lock
+
+# PHP
+.php_cs.cache
+.php_history
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Environment
+.env.local
+.env.*.local
+
+# Testing
+.phpunit.result.cache
+.phpunit.cache
+
+# Production
+public/storage
+storage/oauth-private.key
+storage/oauth-public.key
+
+# Database
+database/database.sqlite
+database/database.sqlite-journal
